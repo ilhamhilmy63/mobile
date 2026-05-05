@@ -8,7 +8,8 @@ import {
   Image, 
   Alert, 
   ActivityIndicator,
-  TextInput
+  TextInput,
+  SafeAreaView
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useFocusEffect } from '@react-navigation/native';
@@ -19,7 +20,7 @@ import { getMedicalResources, deleteMedicalResource } from '../../services/api';
 const getImageUrl = (url) => {
   if (!url) return null;
   if (url.startsWith('http')) return url;
-  return `http://localhost:5000${url}`;
+  return `http://192.168.0.236:5000${url}`;
 };
 
 export default function AdminMedicalResources() {
@@ -48,21 +49,24 @@ export default function AdminMedicalResources() {
   );
 
   const handleDelete = (item) => {
+    console.log('Delete button pressed for item:', item._id);
     Alert.alert(
-      'Delete medical resource?',
-      `Are you sure you want to delete "${item.title}"? This resource will no longer be visible to patients.`,
+      'Delete Entry?',
+      `Are you sure you want to delete this record for ${item.patient_name}?`,
       [
         { text: 'Cancel', style: 'cancel' },
         { 
-          text: 'Delete Resource', 
+          text: 'Delete', 
           style: 'destructive',
           onPress: async () => {
+            console.log('Confirmed delete for:', item._id);
             try {
-              await deleteMedicalResource(item._id);
+              const res = await deleteMedicalResource(item._id);
+              console.log('Delete response:', res.data);
               fetchResources();
             } catch (error) {
-              console.error(error);
-              Alert.alert('Error', 'Failed to delete medical resource');
+              console.error('Delete error:', error.response?.data || error.message);
+              Alert.alert('Error', 'Failed to delete entry: ' + (error.response?.data?.message || error.message));
             }
           }
         }
@@ -72,45 +76,70 @@ export default function AdminMedicalResources() {
 
   const filteredResources = resources.filter((resource) => {
     return (
-      resource.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      resource.description.toLowerCase().includes(searchTerm.toLowerCase())
+      (resource.patient_name || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (resource.patient_id || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (resource.record_type || '').toLowerCase().includes(searchTerm.toLowerCase())
     );
   });
 
   const renderItem = ({ item }) => (
     <View style={styles.card}>
-      {item.image_url ? (
-        <Image source={{ uri: getImageUrl(item.image_url) }} style={styles.cardImage} />
-      ) : (
-        <View style={styles.placeholderImage}>
-          <MaterialIcons name="image" size={48} color="#94a3b8" />
+      <View style={styles.cardHeader}>
+        <View style={styles.typeBadge}>
+          <Text style={styles.typeText}>{item.record_type || 'Record'}</Text>
         </View>
-      )}
-      
-      <View style={styles.cardContent}>
-        <View style={styles.cardHeader}>
-          <Text style={styles.cardTitle} numberOfLines={1}>{item.title}</Text>
-          <View style={styles.headerActions}>
-            <TouchableOpacity onPress={() => router.push({ pathname: '/(admin)/medical-resource-form', params: { id: item._id } })}>
-              <Text style={styles.editText}>Edit</Text>
-            </TouchableOpacity>
-            <TouchableOpacity onPress={() => handleDelete(item)} style={styles.deleteBtn}>
-              <Text style={styles.deleteIconText}>×</Text>
-            </TouchableOpacity>
+        <View style={styles.headerActions}>
+          <TouchableOpacity 
+            style={styles.actionBtn}
+            onPress={() => router.push({ pathname: '/(admin)/medical-resource-form', params: { id: item._id } })}
+          >
+            <MaterialIcons name="edit" size={20} color="#2563eb" />
+          </TouchableOpacity>
+          <TouchableOpacity 
+            style={styles.actionBtn}
+            onPress={() => handleDelete(item)}
+          >
+            <MaterialIcons name="delete" size={20} color="#dc2626" />
+          </TouchableOpacity>
+        </View>
+      </View>
+
+      <View style={styles.cardBody}>
+        <Text style={styles.patientName}>{item.patient_name}</Text>
+        <Text style={styles.patientId}>ID: {item.patient_id} • {item.sex}</Text>
+        
+        <View style={styles.divider} />
+        
+        <View style={styles.infoRow}>
+          <MaterialIcons name="person" size={14} color="#64748b" />
+          <Text style={styles.infoText}>Doctor ID: {item.doctor_id}</Text>
+        </View>
+        
+        <View style={styles.infoRow}>
+          <MaterialIcons name="phone" size={14} color="#64748b" />
+          <Text style={styles.infoText}>{item.phone_number}</Text>
+        </View>
+
+        {item.email && (
+          <View style={styles.infoRow}>
+            <MaterialIcons name="email" size={14} color="#64748b" />
+            <Text style={styles.infoText}>{item.email}</Text>
           </View>
+        )}
+
+        <View style={styles.infoRow}>
+          <MaterialIcons name="calendar-today" size={14} color="#64748b" />
+          <Text style={styles.infoText}>Date: {item.record_date ? new Date(item.record_date).toLocaleDateString() : 'N/A'}</Text>
         </View>
 
-        <View style={styles.categoryPill}>
-          <Text style={styles.categoryText}>{item.category}</Text>
+        <View style={styles.descriptionBox}>
+          <Text style={styles.descriptionLabel}>Notes:</Text>
+          <Text style={styles.descriptionText}>{item.description}</Text>
         </View>
-
-        <Text style={styles.description} numberOfLines={3}>
-          {item.description}
-        </Text>
 
         {item.url && (
           <TouchableOpacity style={styles.viewLink}>
-            <Text style={styles.viewLinkText}>View Resource →</Text>
+            <Text style={styles.viewLinkText}>View Attached Resource →</Text>
           </TouchableOpacity>
         )}
       </View>
@@ -118,18 +147,18 @@ export default function AdminMedicalResources() {
   );
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
       <View style={styles.topHeader}>
         <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
           <MaterialIcons name="arrow_back" size={24} color="#0f172a" />
         </TouchableOpacity>
-        <Text style={styles.topTitle}>MEDICAL RESOURCES</Text>
+        <Text style={styles.topTitle}>MEDICAL HISTORY</Text>
       </View>
 
       <View style={styles.searchSection}>
         <TextInput
           style={styles.searchInput}
-          placeholder="Search resources..."
+          placeholder="Search by name, ID or type..."
           value={searchTerm}
           onChangeText={setSearchTerm}
           placeholderTextColor="#94a3b8"
@@ -138,7 +167,7 @@ export default function AdminMedicalResources() {
           style={styles.addButton}
           onPress={() => router.push('/(admin)/medical-resource-form')}
         >
-          <Text style={styles.addButtonText}>+ Add Resource</Text>
+          <Text style={styles.addButtonText}>+ New Entry</Text>
         </TouchableOpacity>
       </View>
 
@@ -154,12 +183,12 @@ export default function AdminMedicalResources() {
           contentContainerStyle={styles.listContent}
           ListEmptyComponent={
             <View style={styles.emptyContainer}>
-              <Text style={styles.emptyText}>No resources found</Text>
+              <Text style={styles.emptyText}>No history records found</Text>
             </View>
           }
         />
       )}
-    </View>
+    </SafeAreaView>
   );
 }
 
@@ -172,7 +201,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     padding: Spacing.lg,
-    paddingTop: Spacing.xl * 2,
     backgroundColor: Colors.white,
     borderBottomWidth: 1,
     borderBottomColor: '#e2e8f0',
@@ -181,8 +209,7 @@ const styles = StyleSheet.create({
     marginRight: Spacing.md,
   },
   topTitle: {
-    ...Typography.h2,
-    fontSize: 18,
+    fontSize: 20,
     fontWeight: '800',
     color: '#0f172a',
     letterSpacing: 0.5,
@@ -200,7 +227,7 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     paddingHorizontal: 16,
     paddingVertical: 10,
-    fontSize: 14,
+    fontSize: 13,
     color: '#1e293b',
   },
   addButton: {
@@ -213,7 +240,7 @@ const styles = StyleSheet.create({
   addButtonText: {
     color: Colors.white,
     fontWeight: '600',
-    fontSize: 14,
+    fontSize: 13,
   },
   centerContainer: {
     flex: 1,
@@ -226,7 +253,7 @@ const styles = StyleSheet.create({
   },
   card: {
     backgroundColor: Colors.white,
-    borderRadius: 8,
+    borderRadius: 12,
     borderWidth: 1,
     borderColor: '#e2e8f0',
     marginBottom: Spacing.lg,
@@ -235,88 +262,97 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.05,
     shadowRadius: 10,
-    elevation: 3,
-  },
-  cardImage: {
-    width: '100%',
-    height: 160,
-    backgroundColor: '#f1f5f9',
-  },
-  placeholderImage: {
-    width: '100%',
-    height: 160,
-    backgroundColor: '#f1f5f9',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  cardContent: {
-    padding: 24,
+    elevation: 2,
   },
   cardHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'flex-start',
-    marginBottom: 12,
+    alignItems: 'center',
+    paddingHorizontal: 16,
+    paddingTop: 16,
+    paddingBottom: 8,
   },
-  cardTitle: {
-    fontSize: 18,
+  typeBadge: {
+    backgroundColor: '#eff6ff',
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 6,
+  },
+  typeText: {
+    color: '#2563eb',
+    fontSize: 11,
     fontWeight: '700',
-    color: '#0f172a',
-    flex: 1,
-    marginRight: 8,
+    textTransform: 'uppercase',
   },
   headerActions: {
     flexDirection: 'row',
-    alignItems: 'center',
+    gap: 12,
   },
-  editText: {
-    color: '#2563eb',
-    fontWeight: '600',
-    fontSize: 14,
-    marginRight: 12,
+  actionBtn: {
+    padding: 10,
+    backgroundColor: 'transparent',
   },
-  deleteBtn: {
-    paddingHorizontal: 4,
+  cardBody: {
+    padding: 16,
+    paddingTop: 8,
   },
-  deleteIconText: {
-    color: '#dc2626',
-    fontSize: 24,
-    fontWeight: '400',
-    marginTop: -4,
+  patientName: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: '#0f172a',
   },
-  categoryPill: {
-    alignSelf: 'flex-start',
-    backgroundColor: '#dbeafe',
-    paddingHorizontal: 12,
-    paddingVertical: 4,
-    borderRadius: 20,
-    marginBottom: 12,
-  },
-  categoryText: {
-    color: '#1e40af',
+  patientId: {
     fontSize: 12,
-    fontWeight: '600',
+    color: '#64748b',
+    marginTop: 2,
   },
-  description: {
-    fontSize: 14,
+  divider: {
+    height: 1,
+    backgroundColor: '#f1f5f9',
+    marginVertical: 12,
+  },
+  infoRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    marginBottom: 6,
+  },
+  infoText: {
+    fontSize: 13,
     color: '#475569',
-    lineHeight: 20,
-    marginBottom: 16,
+  },
+  descriptionBox: {
+    backgroundColor: '#f8fafc',
+    padding: 12,
+    borderRadius: 8,
+    marginTop: 12,
+  },
+  descriptionLabel: {
+    fontSize: 11,
+    fontWeight: '700',
+    color: '#64748b',
+    marginBottom: 4,
+  },
+  descriptionText: {
+    fontSize: 13,
+    color: '#334155',
+    lineHeight: 18,
   },
   viewLink: {
+    marginTop: 16,
     alignSelf: 'flex-start',
   },
   viewLinkText: {
     color: '#2563eb',
-    fontSize: 14,
+    fontSize: 13,
     fontWeight: '600',
   },
   emptyContainer: {
-    padding: 32,
+    padding: 40,
     alignItems: 'center',
   },
   emptyText: {
-    color: '#64748b',
+    color: '#94a3b8',
     fontSize: 14,
   },
 });

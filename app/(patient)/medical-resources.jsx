@@ -18,7 +18,7 @@ import { getMedicalResources } from '../../services/api';
 const getImageUrl = (url) => {
   if (!url) return null;
   if (url.startsWith('http')) return url;
-  return `http://localhost:5000${url}`;
+  return `http://192.168.0.236:5000${url}`;
 };
 
 export default function PatientMedicalResources() {
@@ -46,31 +46,35 @@ export default function PatientMedicalResources() {
 
   const renderItem = ({ item }) => (
     <View style={styles.card}>
-      {item.image_url ? (
-        <Image source={{ uri: getImageUrl(item.image_url) }} style={styles.cardImage} />
-      ) : (
-        <View style={styles.placeholderImage}>
-          <MaterialIcons name="menu_book" size={48} color="#94a3b8" />
+      <View style={styles.cardHeader}>
+        <View style={styles.typeBadge}>
+          <Text style={styles.typeText}>{item.record_type || 'Record'}</Text>
         </View>
-      )}
-      
-      <View style={styles.cardContent}>
-        <View style={styles.categoryPill}>
-          <Text style={styles.categoryText}>{item.category}</Text>
+        <Text style={styles.dateText}>{item.record_date ? new Date(item.record_date).toLocaleDateString() : ''}</Text>
+      </View>
+
+      <View style={styles.cardBody}>
+        <Text style={styles.patientName}>{item.patient_name}</Text>
+        <Text style={styles.patientId}>Patient ID: {item.patient_id}</Text>
+        
+        <View style={styles.divider} />
+        
+        <View style={styles.infoRow}>
+          <MaterialIcons name="person" size={14} color="#64748b" />
+          <Text style={styles.infoText}>Doctor ID: {item.doctor_id}</Text>
         </View>
 
-        <Text style={styles.cardTitle}>{item.title}</Text>
-
-        <Text style={styles.description} numberOfLines={3}>
-          {item.description}
-        </Text>
+        <View style={styles.descriptionBox}>
+          <Text style={styles.descriptionLabel}>Notes:</Text>
+          <Text style={styles.descriptionText}>{item.description}</Text>
+        </View>
 
         {item.url && (
           <TouchableOpacity 
             style={styles.viewLink}
             onPress={() => {/* Handle opening URL */}}
           >
-            <Text style={styles.viewLinkText}>View Resource →</Text>
+            <Text style={styles.viewLinkText}>View Attached Report →</Text>
           </TouchableOpacity>
         )}
       </View>
@@ -83,7 +87,7 @@ export default function PatientMedicalResources() {
         <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
           <MaterialIcons name="arrow_back" size={24} color="#0f172a" />
         </TouchableOpacity>
-        <Text style={styles.topTitle}>Medical Resources</Text>
+        <Text style={styles.topTitle}>MY MEDICAL RECORDS</Text>
       </View>
 
       {loading ? (
@@ -98,7 +102,7 @@ export default function PatientMedicalResources() {
           contentContainerStyle={styles.listContent}
           ListEmptyComponent={
             <View style={styles.emptyContainer}>
-              <Text style={styles.emptyText}>No medical resources available yet.</Text>
+              <Text style={styles.emptyText}>No medical records available yet.</Text>
             </View>
           }
         />
@@ -124,9 +128,10 @@ const styles = StyleSheet.create({
     marginRight: Spacing.md,
   },
   topTitle: {
-    fontSize: 24,
+    fontSize: 20,
     fontWeight: '800',
     color: '#0f172a',
+    letterSpacing: 0.5,
   },
   centerContainer: {
     flex: 1,
@@ -135,13 +140,14 @@ const styles = StyleSheet.create({
   },
   listContent: {
     padding: Spacing.lg,
+    paddingBottom: 40,
   },
   card: {
     backgroundColor: Colors.white,
     borderRadius: 12,
     borderWidth: 1,
     borderColor: '#e2e8f0',
-    marginBottom: 24,
+    marginBottom: 20,
     overflow: 'hidden',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 4 },
@@ -149,52 +155,82 @@ const styles = StyleSheet.create({
     shadowRadius: 10,
     elevation: 2,
   },
-  cardImage: {
-    width: '100%',
-    height: 180,
-    backgroundColor: '#f1f5f9',
-  },
-  placeholderImage: {
-    width: '100%',
-    height: 180,
-    backgroundColor: '#f1f5f9',
-    justifyContent: 'center',
+  cardHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
     alignItems: 'center',
+    paddingHorizontal: 16,
+    paddingTop: 16,
   },
-  cardContent: {
-    padding: 24,
-  },
-  categoryPill: {
-    alignSelf: 'flex-start',
+  typeBadge: {
     backgroundColor: '#ecfeff',
-    paddingHorizontal: 12,
+    paddingHorizontal: 10,
     paddingVertical: 4,
-    borderRadius: 20,
-    marginBottom: 12,
+    borderRadius: 6,
   },
-  categoryText: {
-    color: '#155e75',
+  typeText: {
+    color: '#0891b2',
+    fontSize: 11,
+    fontWeight: '700',
+    textTransform: 'uppercase',
+  },
+  dateText: {
     fontSize: 12,
-    fontWeight: '600',
+    color: '#94a3b8',
+    fontWeight: '500',
   },
-  cardTitle: {
-    fontSize: 20,
+  cardBody: {
+    padding: 16,
+  },
+  patientName: {
+    fontSize: 18,
     fontWeight: '700',
     color: '#0f172a',
-    marginBottom: 8,
   },
-  description: {
-    fontSize: 14,
+  patientId: {
+    fontSize: 12,
+    color: '#64748b',
+    marginTop: 2,
+  },
+  divider: {
+    height: 1,
+    backgroundColor: '#f1f5f9',
+    marginVertical: 12,
+  },
+  infoRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    marginBottom: 6,
+  },
+  infoText: {
+    fontSize: 13,
     color: '#475569',
-    lineHeight: 20,
-    marginBottom: 16,
+  },
+  descriptionBox: {
+    backgroundColor: '#f8fafc',
+    padding: 12,
+    borderRadius: 8,
+    marginTop: 12,
+  },
+  descriptionLabel: {
+    fontSize: 11,
+    fontWeight: '700',
+    color: '#64748b',
+    marginBottom: 4,
+  },
+  descriptionText: {
+    fontSize: 13,
+    color: '#334155',
+    lineHeight: 18,
   },
   viewLink: {
+    marginTop: 16,
     alignSelf: 'flex-start',
   },
   viewLinkText: {
     color: '#0891b2',
-    fontSize: 14,
+    fontSize: 13,
     fontWeight: '700',
   },
   emptyContainer: {

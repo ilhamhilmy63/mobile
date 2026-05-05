@@ -3,7 +3,8 @@
    Base URL points to backend
    ============================ */
 
-const API_BASE = 'http://localhost:5000/api';
+const API_IP = '192.168.0.236';
+const API_BASE = `http://${API_IP}:5000/api`;
 
 const api = {
   getToken() {

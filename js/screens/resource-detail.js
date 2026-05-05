@@ -7,7 +7,7 @@ Router.register('resource-detail', (app, { resource } = {}) => {
 
   // Hero image
   if (resource.image_url) {
-    content.appendChild(html(`<img src="http://localhost:5000${resource.image_url}" alt="${resource.title}" style="width:100%;height:220px;object-fit:cover" />`));
+    content.appendChild(html(`<img src="http://192.168.0.236:5000${resource.image_url}" alt="${resource.title}" style="width:100%;height:220px;object-fit:cover" />`));
   } else {
     content.appendChild(html(`<div style="width:100%;height:220px;background:linear-gradient(135deg,#e0f2fe,#cffafe);display:flex;align-items:center;justify-content:center"><span class="material-symbols-outlined" style="font-size:72px;color:var(--primary);opacity:0.5">menu_book</span></div>`));
   }

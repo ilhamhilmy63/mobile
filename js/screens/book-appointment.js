@@ -81,7 +81,7 @@ Router.register('book-appointment', (app) => {
 
   // Load doctors
   const doctorSelect = screen.querySelector('#bookDoctor');
-  fetch('http://localhost:5000/api/auth/doctors', {
+  fetch('http://192.168.0.236:5000/api/auth/doctors', {
     headers: { Authorization: `Bearer ${api.getToken()}` }
   }).then(r => r.json()).then(data => {
     const doctors = data.data || data.doctors || [];

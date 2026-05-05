@@ -67,7 +67,7 @@ Router.register('feedback', (app) => {
     `;
 
     // Load doctors
-    fetch('http://localhost:5000/api/auth/doctors', { headers: { Authorization: `Bearer ${api.getToken()}` } })
+    fetch('http://192.168.0.236:5000/api/auth/doctors', { headers: { Authorization: `Bearer ${api.getToken()}` } })
       .then(r => r.json()).then(data => {
         const sel = el.querySelector('#fbDoctor');
         (data.data || data.doctors || []).forEach(d => {
