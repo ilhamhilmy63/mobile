@@ -64,7 +64,7 @@ export default function Register() {
         </View>
 
         <View style={styles.roleContainer}>
-          {['patient', 'doctor'].map((r) => (
+          {['patient', 'doctor', 'admin'].map((r) => (
             <TouchableOpacity 
               key={r}
               style={[styles.roleTab, role === r && styles.activeRoleTab]}

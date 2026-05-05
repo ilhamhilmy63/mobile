@@ -40,8 +40,10 @@ export default function Login() {
       
       if (user.role === 'patient') {
         router.replace('/(patient)/dashboard');
+      } else if (user.role === 'admin') {
+        router.replace('/(admin)/dashboard');
       } else {
-        Alert.alert('Access Denied', 'This app currently only supports patient access.');
+        Alert.alert('Access Denied', `This app currently only supports patient and admin access.`);
       }
     } catch (error) {
       console.error(error);
@@ -63,7 +65,7 @@ export default function Login() {
         </View>
 
         <View style={styles.roleContainer}>
-          {['patient', 'doctor', 'admin'].map((r) => (r === 'patient' || r === 'doctor') && (
+          {['patient', 'doctor', 'admin'].map((r) => (
             <TouchableOpacity 
               key={r}
               style={[styles.roleTab, role === r && styles.activeRoleTab]}
