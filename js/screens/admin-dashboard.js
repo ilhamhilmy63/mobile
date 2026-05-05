@@ -69,7 +69,7 @@ Router.register('admin-dashboard', (app) => {
   mgmtGrid.className = 'admin-mgmt-grid';
 
   const mgmtItems = [
-    { icon: 'menu_book',       label: 'Resources',    screen: 'medical-resources', color: '#8b5cf6' },
+    { icon: 'menu_book',       label: 'Resources',    screen: 'admin-medical-resources', color: '#8b5cf6' },
     { icon: 'calendar_month',  label: 'Appointments', screen: 'appointments',      color: '#0e7490' },
     { icon: 'local_pharmacy',  label: 'Prescriptions',screen: 'prescriptions',     color: '#10b981' },
     { icon: 'medication',      label: 'Medicines',    screen: 'medication-ordering', color: '#f59e0b' },
@@ -141,7 +141,7 @@ Router.register('admin-dashboard', (app) => {
 
   // ── Wire up "see all" buttons ────────────────────────────────────────────
   screen.querySelector('#adminSeeAppts').addEventListener('click', () => Router.navigate('appointments'));
-  screen.querySelector('#adminSeeRes').addEventListener('click',   () => Router.navigate('medical-resources'));
+  screen.querySelector('#adminSeeRes').addEventListener('click',   () => Router.navigate('admin-medical-resources'));
 
   // ── Load appointments ────────────────────────────────────────────────────
   api.getAppointments().then(data => {

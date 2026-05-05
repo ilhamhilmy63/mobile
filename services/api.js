@@ -40,4 +40,19 @@ export const deleteEmergencyContact = (id) => api.delete(`/emergency-contacts/${
 // Available doctors
 export const getAvailableDoctors = () => api.get('/appointments/doctors/available');
 
+// Medical Resources
+export const getMedicalResources = () => api.get('/medical-resources');
+export const getMedicalResourceById = (id) => api.get(`/medical-resources/${id}`);
+export const createMedicalResource = (data) => api.post('/medical-resources', data, {
+  headers: {
+    'Content-Type': 'multipart/form-data',
+  },
+});
+export const updateMedicalResource = (id, data) => api.put(`/medical-resources/${id}`, data, {
+  headers: {
+    'Content-Type': 'multipart/form-data',
+  },
+});
+export const deleteMedicalResource = (id) => api.delete(`/medical-resources/${id}`);
+
 export default api;

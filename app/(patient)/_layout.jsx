@@ -5,6 +5,7 @@ export default function PatientLayout() {
     <Stack screenOptions={{ headerShown: false }}>
       <Stack.Screen name="dashboard" />
       <Stack.Screen name="emergency" />
+      <Stack.Screen name="medical-resources" />
     </Stack>
   );
 }

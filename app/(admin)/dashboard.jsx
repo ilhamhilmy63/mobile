@@ -15,10 +15,11 @@ export default function AdminDashboard() {
   };
 
   const adminActions = [
-    { title: 'Manage Patients', icon: 'people', color: '#0e7490' },
-    { title: 'Doctor Schedules', icon: 'event', color: '#8b5cf6' },
-    { title: 'System Analytics', icon: 'analytics', color: '#10b981' },
-    { title: 'Clinic Feedback', icon: 'rate_review', color: '#f59e0b' },
+    { title: 'Manage Patients', icon: 'people', color: '#0e7490', route: '/(admin)/patients' },
+    { title: 'Doctor Schedules', icon: 'event', color: '#8b5cf6', route: '/(admin)/schedules' },
+    { title: 'Medical Resources', icon: 'menu_book', color: '#f43f5e', route: '/(admin)/medical-resources' },
+    { title: 'System Analytics', icon: 'analytics', color: '#10b981', route: '/(admin)/analytics' },
+    { title: 'Clinic Feedback', icon: 'rate_review', color: '#f59e0b', route: '/(admin)/feedback' },
   ];
 
   return (
@@ -30,7 +31,11 @@ export default function AdminDashboard() {
 
       <View style={styles.grid}>
         {adminActions.map((action, index) => (
-          <TouchableOpacity key={index} style={styles.card}>
+          <TouchableOpacity 
+            key={index} 
+            style={styles.card}
+            onPress={() => router.push(action.route)}
+          >
             <View style={[styles.iconWrapper, { backgroundColor: action.color + '15' }]}>
               <MaterialIcons name={action.icon} size={28} color={action.color} />
             </View>

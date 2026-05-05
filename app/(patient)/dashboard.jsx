@@ -177,11 +177,14 @@ export default function Dashboard() {
             <Text style={styles.actionLabel}>Feedback</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.actionButton}>
-            <View style={[styles.actionIcon, { backgroundColor: '#fff7ed' }]}>
-              <MaterialIcons name="local-pharmacy" size={24} color="#f97316" />
+          <TouchableOpacity 
+            style={styles.actionButton}
+            onPress={() => router.push('/(patient)/medical-resources')}
+          >
+            <View style={[styles.actionIcon, { backgroundColor: '#ecfeff' }]}>
+              <MaterialIcons name="menu-book" size={24} color="#0891b2" />
             </View>
-            <Text style={styles.actionLabel}>Prescription</Text>
+            <Text style={styles.actionLabel}>Resources</Text>
           </TouchableOpacity>
         </View>
 
